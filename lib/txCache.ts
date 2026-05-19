@@ -103,7 +103,8 @@ export function registerToCache(
     existing.amountMin = Math.min(existing.amountMin, amount);
     existing.amountMax = Math.max(existing.amountMax, amount);
     existing.lastUsed = now;
-    existing.description = description; // 최신 설명으로 갱신
+    existing.hitCount += 1; // 확인된 적중만 카운트 (lookup에서는 안 올림)
+    existing.description = description;
   } else {
     // 새 캐시 엔트리
     const { min, max } = amountRange(amount);
@@ -139,19 +140,18 @@ export function lookupCache(
 
   const match = cache.find((c) => {
     const normC = normalizeVendor(c.vendor);
-    // 거래처명 매칭: 정규화 후 동일 or 포함관계
-    const vendorMatch = normC === normV || normV.includes(normC) || normC.includes(normV);
-    // 금액 범위 매칭: 캐시에 기록된 범위 내인지만 확인 (양방향 OR 제거)
+    // 거래처명 매칭: 정확 일치 우선, 부분 매칭은 4자 이상에서만 허용
+    let vendorMatch = normC === normV;
+    if (!vendorMatch && normC.length >= 4 && normV.length >= 4) {
+      vendorMatch = normV.includes(normC) || normC.includes(normV);
+    }
+    // 금액 범위 매칭
     const amountMatch = amount >= c.amountMin && amount <= c.amountMax;
     return vendorMatch && amountMatch;
   });
 
-  if (match) {
-    // 적중 횟수 증가
-    match.hitCount += 1;
-    match.lastUsed = new Date().toISOString();
-    saveCache(cache);
-  }
+  // hitCount는 lookup에서 올리지 않음 — commit(registerToCache)에서만 증가
+  // "추천만 띄운 적중"과 "확인된 적중"을 구분하기 위함
 
   return match || null;
 }
@@ -172,9 +172,9 @@ export function extractAmount(text: string): number {
     const m = text.match(p);
     if (m) {
       if (p === amountPatterns[0]) {
-        return parseInt(m[1].replace(/,/g, ""));
+        return parseInt(m[1].replace(/,/g, ""), 10);
       } else {
-        return parseInt(m[1]) * 10000 + (m[2] ? parseInt(m[2]) * 1000 : 0);
+        return parseInt(m[1], 10) * 10000 + (m[2] ? parseInt(m[2], 10) * 1000 : 0);
       }
     }
   }

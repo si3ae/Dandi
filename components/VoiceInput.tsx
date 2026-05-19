@@ -3,6 +3,7 @@ import { useRef, useState } from "react";
 import { Entry, addEntries, fmt, splitSupplyVat, total } from "@/lib/storage";
 import { todayKST } from "@/lib/date";
 import { lookupCache, logCacheEvent, registerToCache } from "@/lib/txCache";
+import { logUsage } from "@/lib/logging";
 
 interface Props {
   onAdded: () => void;
@@ -48,10 +49,15 @@ export default function VoiceInput({ onAdded }: Props) {
   }
 
   const [cacheHit, setCacheHit] = useState(false);
+  const [lastLogId, setLastLogId] = useState<string | null>(null);
 
   async function sendToWhisper(blob: Blob) {
     setBusy(true);
     setCacheHit(false);
+    setLastLogId(null);
+    const startTime = Date.now();
+    let cacheAction: "hit" | "miss" | "none" = "none";
+    let cacheMatchedAccount: string | undefined;
     try {
       const fd = new FormData();
       fd.append("audio", new File([blob], "voice.webm", { type: "audio/webm" }));
@@ -67,13 +73,13 @@ export default function VoiceInput({ onAdded }: Props) {
         const vendor = e.vendor || "";
         const account = e.account || (e.type === "in" ? "매출" : "기타");
 
-        // AI 응답의 vendor+amount로 캐시 체크 (정규식 추출 대신)
         if (vendor) {
           const cached = lookupCache(vendor, totalAmt);
           if (cached) {
             setCacheHit(true);
+            cacheAction = "hit";
+            cacheMatchedAccount = cached.account;
             logCacheEvent("hit", vendor, totalAmt, "voice", cached.account);
-            // 캐시된 계정과목을 사용 (AI 결과 대신)
             const { supply, vat } = splitSupplyVat(totalAmt, true);
             return {
               date: e.date || todayKST(),
@@ -86,6 +92,7 @@ export default function VoiceInput({ onAdded }: Props) {
               source: "voice" as const,
             };
           }
+          cacheAction = "miss";
           logCacheEvent("miss", vendor, totalAmt, "voice");
         }
 
@@ -102,8 +109,21 @@ export default function VoiceInput({ onAdded }: Props) {
         };
       });
       setParsed(entries);
+
+      // 사용 로그 자동 기록
+      logUsage({
+        source: "voice",
+        whisperText: transcribedText,
+        parsedJson: data.items,
+        cacheAction,
+        cacheMatchedAccount,
+        durationMs: Date.now() - startTime,
+        success: true,
+      }).then((id) => { if (id) setLastLogId(id); });
+
     } catch (e: any) {
       setError(e.message);
+      logUsage({ source: "voice", durationMs: Date.now() - startTime, success: false, errorMessage: e.message });
     } finally {
       setBusy(false);
     }

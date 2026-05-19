@@ -7,5 +7,4 @@ export type Screen =
   | "report"
   | "ganpyeon"
   | "vendors"
-  | "alert"
-  | "consent";
+  | "alert";
