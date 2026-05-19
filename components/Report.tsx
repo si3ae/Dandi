@@ -39,7 +39,7 @@ export default function Report({ entries, onGo }: { entries: Entry[]; onGo: (s: 
   const handlePdf = () => {
     const w = window.open("", "_blank");
     if (!w) return;
-    const rows = filtered.map((e) => 
+    const rows = filtered.map((e) =>
       `<tr><td>${esc(e.date || "")}</td><td>${esc(e.description || "")}</td><td>${esc(e.account || "")}</td>
     ).join("");
     const incStr = inc > 0 ? `+${fmt(inc)}` : fmt(inc);
