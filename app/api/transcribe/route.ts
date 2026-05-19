@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
-import { todayKST, toKSTDate } from "@/lib/date";
+import { todayKST } from "@/lib/date";
 import { checkRateLimit } from "@/lib/ratelimit";
 import { CLAUDE_MODEL } from "@/lib/anthropic";
 
@@ -135,8 +135,7 @@ function userFriendlyError(err: any): { message: string; status: number } {
 export async function POST(req: NextRequest) {
   try {
     const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-    const deviceId = req.headers.get("x-device-id") || undefined;
-    const rl = await checkRateLimit(ip, deviceId);
+    const rl = checkRateLimit(ip);
     if (!rl.ok) {
       return NextResponse.json({ error: "요청이 너무 많습니다. 잠시 후 다시 시도해주세요." }, { status: 429 });
     }
@@ -181,10 +180,12 @@ export async function POST(req: NextRequest) {
 
     // 3) Claude로 텍스트 → 장부 항목 (tool use로 structured output 강제)
     const anthropic = getAnthropic();
-    const today = todayKST();
+    const today = todayKST(); // KST 기준 — UTC 날짜 밀림 버그 방지
 
-    // 상대 날짜를 서버에서 미리 계산 — toKSTDate로 시간대 안전 보장
-    const daysAgo = (n: number) => { const d = new Date(); d.setDate(d.getDate() - n); return toKSTDate(d); };
+    // 상대 날짜를 서버에서 미리 계산 — LLM에게 맡기면 오프바이원 발생 가능
+    const kstNow = new Date(new Date().toLocaleString("en-US", { timeZone: "Asia/Seoul" }));
+    const dateFmt = (d: Date) => d.toISOString().slice(0, 10);
+    const daysAgo = (n: number) => { const d = new Date(kstNow); d.setDate(d.getDate() - n); return dateFmt(d); };
     const dateHints = `오늘=${today}, 어제=${daysAgo(1)}, 그제=${daysAgo(2)}, 그저께=${daysAgo(2)}, 엊그제=${daysAgo(2)}`;
 
     const msg = await anthropic.messages.create({

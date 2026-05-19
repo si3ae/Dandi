@@ -1,11 +1,10 @@
 "use client";
 import { useState } from "react";
 import type { Screen } from "@/lib/types";
-import { Entry, fmt, loadEntries, saveEntries, splitSupplyVat, sumExpense, sumIncome, total } from "@/lib/storage";
+import { Entry, fmt, loadEntries, saveEntries, sumExpense, sumIncome, total } from "@/lib/storage";
 import GradientHeader from "@/components/GradientHeader";
 import VoiceInput from "@/components/VoiceInput";
 import ImageOcr from "@/components/ImageOcr";
-import { reportError } from "@/lib/logging";
 
 export default function InputScreen({
   screen,
@@ -33,21 +32,19 @@ export default function InputScreen({
   }
 
   function saveEdit(e: Entry) {
-    const updated = { ...e };
     let changed = false;
-    if (editDesc !== e.description) { updated.description = editDesc; changed = true; }
+    if (editDesc !== e.description) { e.description = editDesc; changed = true; }
     const newAmt = parseInt(editAmt.replace(/[^0-9]/g, ""), 10);
     if (!isNaN(newAmt) && newAmt !== total(e)) {
-      const { supply, vat } = splitSupplyVat(newAmt);
-      updated.supply = supply;
-      updated.vat = vat;
+      e.supply = Math.round(newAmt / 1.1);
+      e.vat = newAmt - e.supply;
       changed = true;
     }
     if (changed) {
       const all = loadEntries();
       const idx = all.findIndex((x: Entry) => x.id === e.id);
       if (idx >= 0) {
-        all[idx] = updated;
+        all[idx] = { ...e };
         saveEntries(all);
       }
       onRefresh();
@@ -67,11 +64,6 @@ export default function InputScreen({
         <div className={"inav" + (screen === "taxinvoice" ? " on" : "")} onClick={() => onGo("taxinvoice")} style={{ textAlign: "center" }}>📄 세금계산서</div>
       </div>
 
-      {screen === "voice" && <VoiceInput onAdded={onRefresh} />}
-      {screen === "handwriting" && <ImageOcr mode="handwriting" onAdded={onRefresh} />}
-      {screen === "receipt" && <ImageOcr mode="receipt" onAdded={onRefresh} />}
-      {screen === "taxinvoice" && <ImageOcr mode="taxinvoice" onAdded={onRefresh} />}
-
       <div className="sc2">
         <div className="sv">
           <div className="sl">이번 달 수입</div>
@@ -86,6 +78,11 @@ export default function InputScreen({
           </div>
         </div>
       </div>
+
+      {screen === "voice" && <VoiceInput onAdded={onRefresh} />}
+      {screen === "handwriting" && <ImageOcr mode="handwriting" onAdded={onRefresh} />}
+      {screen === "receipt" && <ImageOcr mode="receipt" onAdded={onRefresh} />}
+      {screen === "taxinvoice" && <ImageOcr mode="taxinvoice" onAdded={onRefresh} />}
 
       <div className="card">
         <div className="ct">📒 최근 내역</div>
@@ -156,29 +153,6 @@ export default function InputScreen({
                     }}
                   >
                     저장
-                  </button>
-                  <button
-                    onClick={() => {
-                      const type = prompt("오류 종류를 선택해주세요:\n1. 계정과목 틀림\n2. 금액 틀림\n3. 거래처 틀림\n4. 수입/지출 반대\n5. 기타", "1");
-                      const typeMap: Record<string, string> = { "1": "wrong_account", "2": "wrong_amount", "3": "wrong_vendor", "4": "wrong_type", "5": "other" };
-                      const reportType = typeMap[type || "5"] || "other";
-                      const desc = prompt("어떻게 틀렸는지 간단히 적어주세요 (선택)") || "";
-                      reportError({
-                        entryId: e.id,
-                        reportType: reportType as any,
-                        originalValue: `${e.account} / ${e.vendor} / ${total(e)}`,
-                        correctedValue: editId === e.id ? `${editDesc} / ${editAmt}` : undefined,
-                        description: desc,
-                      });
-                      alert("신고가 접수되었습니다. 감사합니다!");
-                    }}
-                    style={{
-                      padding: "8px 0", borderRadius: 10, border: "1px solid #ddd",
-                      background: "#fff", color: "#999", fontSize: 12,
-                      cursor: "pointer",
-                    }}
-                  >
-                    ⚠️ 이 항목이 잘못됐어요
                   </button>
                 </div>
               )}

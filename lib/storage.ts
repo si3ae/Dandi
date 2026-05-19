@@ -1,4 +1,3 @@
-import { uuid } from "./uuid";
 import { todayKST } from "./date";
 
 export type EntryType = "in" | "out";
@@ -32,9 +31,9 @@ export function loadEntries(): Entry[] {
   try {
     const raw = localStorage.getItem(KEY);
     if (!raw) {
-      const seed = seedEntries();
-      localStorage.setItem(KEY, JSON.stringify(seed));
-      return seed;
+      // 신규 사용자에게 가짜 데이터 자동 생성하지 않음
+      // 시연 시 샘플 데이터가 필요하면 loadSeedEntries()를 명시적으로 호출
+      return [];
     }
     return JSON.parse(raw);
   } catch {
@@ -42,24 +41,16 @@ export function loadEntries(): Entry[] {
   }
 }
 
-// 디바운스 — push가 매 저장마다 발사되는 것 방지
-let _syncTimer: ReturnType<typeof setTimeout> | null = null;
-function debouncedSync(fn: () => Promise<any>) {
-  if (_syncTimer) clearTimeout(_syncTimer);
-  _syncTimer = setTimeout(() => { fn().catch(() => {}); }, 2000);
-}
-
 export function saveEntries(entries: Entry[]) {
   if (typeof window === "undefined") return;
   localStorage.setItem(KEY, JSON.stringify(entries));
-  debouncedSync(() => import("./sync").then(({ pushEntries }) => pushEntries(entries)));
 }
 
 export function addEntries(newOnes: Omit<Entry, "id">[]): Entry[] {
   const cur = loadEntries();
   const withIds: Entry[] = newOnes.map((e) => ({
     ...e,
-    id: uuid(),
+    id: crypto.randomUUID(),
   }));
   const next = [...cur, ...withIds];
   saveEntries(next);
@@ -164,7 +155,7 @@ function seedEntries(): Entry[] {
 
   return [
     {
-      id: uuid(),
+      id: crypto.randomUUID(),
       date: daysAgo(6),
       account: "매출",
       description: "현금 매출",
@@ -175,7 +166,7 @@ function seedEntries(): Entry[] {
       source: "manual",
     },
     {
-      id: uuid(),
+      id: crypto.randomUUID(),
       date: daysAgo(5),
       account: "식재료비",
       description: "식자재 구입",
@@ -186,7 +177,7 @@ function seedEntries(): Entry[] {
       source: "manual",
     },
     {
-      id: uuid(),
+      id: crypto.randomUUID(),
       date: daysAgo(4),
       account: "매출",
       description: "카드 매출",
@@ -197,7 +188,7 @@ function seedEntries(): Entry[] {
       source: "voice",
     },
     {
-      id: uuid(),
+      id: crypto.randomUUID(),
       date: daysAgo(3),
       account: "공과금",
       description: "전기요금",
@@ -208,7 +199,7 @@ function seedEntries(): Entry[] {
       source: "manual",
     },
     {
-      id: uuid(),
+      id: crypto.randomUUID(),
       date: daysAgo(2),
       account: "식재료비",
       description: "채소 구입",
@@ -219,7 +210,7 @@ function seedEntries(): Entry[] {
       source: "receipt",
     },
     {
-      id: uuid(),
+      id: crypto.randomUUID(),
       date: daysAgo(1),
       account: "매출",
       description: "배달 매출",
@@ -230,7 +221,7 @@ function seedEntries(): Entry[] {
       source: "manual",
     },
     {
-      id: uuid(),
+      id: crypto.randomUUID(),
       date: today,
       account: "소모품비",
       description: "포장용기 구입",
@@ -333,7 +324,6 @@ export function loadVendors(): Vendor[] {
 export function saveVendors(vendors: Vendor[]) {
   if (typeof window === "undefined") return;
   localStorage.setItem(VENDOR_KEY, JSON.stringify(vendors));
-  debouncedSync(() => import("./sync").then(({ pushVendors }) => pushVendors(vendors)));
 }
 
 /**
@@ -349,7 +339,7 @@ export function addVendor(v: Omit<Vendor, "id">): Vendor[] {
       x.id === existing.id ? { ...x, category: v.category, emoji: v.emoji } : x
     );
   } else {
-    next = [...cur, { ...v, id: uuid() }];
+    next = [...cur, { ...v, id: crypto.randomUUID() }];
   }
   saveVendors(next);
   return next;
@@ -434,7 +424,6 @@ export function loadSettings(): Settings {
 export function saveSettings(s: Settings) {
   if (typeof window === "undefined") return;
   localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
-  debouncedSync(() => import("./sync").then(({ pushSettings }) => pushSettings(s)));
 }
 
 // ───── AI 인사이트 생성 ─────

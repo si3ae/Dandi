@@ -55,7 +55,7 @@ body {
 }
 
 /* ── 레이아웃 ── */
-.phone { width: 100%; max-width: 390px; min-height: 100vh; background: var(--bg-page); display: flex; flex-direction: column; position: relative; }
+.phone { width: 100%; max-width: 390px; min-height: 100vh; background: var(--bg-page); display: flex; flex-direction: column; }
 .screen { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 84px; }
 .screen.no-tab { padding-bottom: 0; }
 
