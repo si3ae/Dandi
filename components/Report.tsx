@@ -39,9 +39,9 @@ export default function Report({ entries, onGo }: { entries: Entry[]; onGo: (s: 
   const handlePdf = () => {
     const w = window.open("", "_blank");
     if (!w) return;
-    const rows = filtered.map((e) =>
+    const rows = filtered.map((e) => (
       `<tr><td>${esc(e.date || "")}</td><td>${esc(e.description || "")}</td><td>${esc(e.account || "")}</td>
-    ).join("");
+    )).join("");
     const incStr = inc > 0 ? `+${fmt(inc)}` : fmt(inc);
     const expStr = exp > 0 ? `-${fmt(exp)}` : fmt(exp);
     w.document.write(`<html><head><title>단디 리포트</title><style>body{font-family:sans-serif;padding:20px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #ddd;padding:6px 8px;font-size:13px}th{background:#f5f5f5}</style></head><body><h2>단디 리포트 — ${tab === "month" ? selYear + "년 " + selMonth + "월" : selYear + "년"}</h2><p>수입: ${incStr} / 지출: ${expStr} / 순이익: ${fmt(net)}</p><table><tr><th>날짜</th><th>내용</th><th>계정</th><th>금액</th></tr>${rows}</table><script>window.print()</script></body></html>`);
