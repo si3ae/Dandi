@@ -36,11 +36,11 @@ export default function Report({ entries, onGo }: { entries: Entry[]; onGo: (s: 
 
   const esc = (s: string) => s.replace(/[<>&"']/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;", "'": "&#39;" }[c]!));
 
-  const handlePdf = () => {
+ const handlePdf = () => {
     const w = window.open("", "_blank");
     if (!w) return;
     const rows = filtered.map((e) =>
-      `<tr><td>${esc(e.date ?? "")}</td><td>${esc(e.description ?? "")}</td><td>${esc(e.account ?? "")}</td><td style="text-align:right;color:${e.type === "in" ? "green" : "red"}">${e.type === "in" ? "+" : "-"}${fmt(total(e))}</td></tr>`
+      `<tr><td>${esc(e.date || "")}</td><td>${esc(e.description || "")}</td><td>${esc(e.account || "")}</td><td style="text-align:right;color:${e.type === "in" ? "green" : "red"}">${e.type === "in" ? "+" : "-"}${fmt(total(e))}</td></tr>`
     ).join("");
     const incStr = inc > 0 ? `+${fmt(inc)}` : fmt(inc);
     const expStr = exp > 0 ? `-${fmt(exp)}` : fmt(exp);
