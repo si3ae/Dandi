@@ -1,4 +1,5 @@
-<!-- language switcher --> [English](README.md) | **한국어**
+<!-- language switcher -->
+[English](README.md) | **한국어**
 
 # 단디(Dandi): AI 장부 자동화 시스템
 

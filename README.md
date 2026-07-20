@@ -1,4 +1,5 @@
-<!-- language switcher --> **English** | [한국어](README.ko.md)
+<!-- language switcher -->
+**English** | [한국어](README.ko.md)
 
 # Dandi: AI Accounting Automation System
 
