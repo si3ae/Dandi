@@ -279,7 +279,7 @@ detection*) across financial domains:
 > verifiable AI for shell-company / AML investigation; anomaly detection scaled
 > to cross-border fraud networks
 >
-> **[Financial Intelligence Terminal](https://github.com/si3ae/Financial_Intelligence_Terminal)**:
+> **[Lookout](https://github.com/si3ae/Lookout)**:
 > multi-asset market signal aggregation at scale
 
 ---

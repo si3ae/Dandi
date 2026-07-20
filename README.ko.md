@@ -253,7 +253,7 @@ API 대시보드 기준입니다.
 > 셸 컴퍼니 / 자금세탁 수사를 위한 검증 가능한 AI; 이상 탐지를 국경 간 사기
 > 네트워크로 확장
 >
-> **[Financial Intelligence Terminal](https://github.com/si3ae/Financial_Intelligence_Terminal)**:
+> **[Lookout](https://github.com/si3ae/Lookout)**:
 > 대규모 멀티에셋 시장 신호 집계
 
 ---
