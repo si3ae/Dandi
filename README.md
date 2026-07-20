@@ -1,7 +1,9 @@
+<!-- language switcher --> **English** | [한국어](README.ko.md)
+
 # Dandi: AI Accounting Automation System
 
 > Voice-first system for capturing and structuring cash transactions in
-> offline-first environments — **built, deployed, and field-tested with ~200
+> offline-first environments — **built, deployed, and field-tested with ≈200
 > users** in Busan's traditional markets.
 >
 > A working example of capturing non-card cash transactions — a structural blind
@@ -19,9 +21,9 @@
   image OCR (Claude Vision + Naver Clova), transaction caching, deployed on Vercel.
 - Captures **non-card cash transactions** — the structural blind spot in
   card-network and tax-authority data, present in every cash-heavy economy.
-- **Field-tested, not estimated:** ~200 visitors used it at a public exhibition
-  (May 2026). Total API cost **₩1,500 (~$1.17)** across the run — about **₩7.5
-  per session** — with ~80% positive feedback.
+- **Field-tested, not estimated:** ≈200 visitors used it at a public exhibition
+  (May 2026). Total API cost **₩1,500 (≈$1.17)** across the run — about **₩7.5
+  per session** — with ≈80% positive feedback.
 - **Cost-aware architecture:** a transaction cache exploits repeat-transaction
   patterns to skip the LLM on repeat entries; hit/miss events are instrumented.
 - **Human-confirmation gate:** every AI classification enters the ledger as
@@ -33,13 +35,20 @@
 
 ## Screens
 
-<p>
-  <img src="docs/dandi-screen-voice.jpg" width="32%" alt="Voice input — speak a transaction, AI fills date/category/amount" />
-  <img src="docs/dandi-screen-report.jpg" width="32%" alt="Monthly report — income/expense, category breakdown, weekday chart" />
-  <img src="docs/dandi-screen-ledger.jpg" width="32%" alt="NTS-format ledger — VAT split, with explicit non-direct-upload disclosure" />
-</p>
+<table>
+  <tr>
+    <td width="33%"><img src="docs/dandi-screen-voice.jpg" alt="Voice input" /></td>
+    <td width="33%"><img src="docs/dandi-screen-report.jpg" alt="Monthly report" /></td>
+    <td width="33%"><img src="docs/dandi-screen-ledger.jpg" alt="NTS-format ledger" /></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Voice input</b><br/>speak a transaction → AI fills date / category / amount</td>
+    <td align="center"><b>Monthly report</b><br/>income / expense, category breakdown, weekday chart</td>
+    <td align="center"><b>NTS-format ledger</b><br/>VAT split + explicit non-direct-upload disclosure</td>
+  </tr>
+</table>
 
-*Voice input · monthly report · NTS-format ledger (shown with seed demo data).*
+<sub>Shown with seed demo data.</sub>
 
 ---
 
@@ -163,11 +172,11 @@ design, not yet shipped.
 
 The prototype was tested in the field rather than only estimated:
 
-- **~200 visitors** used Dandi at a public exhibition (Career Blossom, May 2026),
+- **≈200 visitors** used Dandi at a public exhibition (Career Blossom, May 2026),
   each role-playing a vendor entering transactions.
-- **Total API cost ₩1,500 (~$1.17)** for the whole run — Anthropic $1.03 +
-  OpenAI $0.14 — i.e. **~₩7.5 per session**.
-- **~80% positive** across 85 paper feedback forms (20 analyzed so far); top
+- **Total API cost ₩1,500 (≈$1.17)** for the whole run — Anthropic $1.03 +
+  OpenAI $0.14 — i.e. **≈₩7.5 per session**.
+- **≈80% positive** across 85 paper feedback forms (20 analyzed so far); top
   improvement requests: loading speed, app entry friction, a typing option.
 
 Honest notes: this was a **booth role-play, not a multi-week vendor pilot** — the
@@ -185,7 +194,7 @@ Production-oriented choices baked into the prototype:
 - **Unconfirmed gate** — every AI classification enters as `unconfirmed`; the
   user must confirm before it affects tax-relevant exports.
 - **Inline correction** — every field editable in place, no modal, no round-trip
-  (~2s in self-testing).
+  (≈2s in self-testing).
 - **Cache learns from corrections, not raw output** — only confirmed (post-edit)
   entries become cache seeds, so the cache improves rather than amplifying errors.
 - **PII masking** — card / resident-registration / account numbers are masked
@@ -201,7 +210,7 @@ Production-oriented choices baked into the prototype:
 ## Engineering Trade-offs
 
 - **Caching over fine-tuning** — fine-tuning would raise the accuracy ceiling but
-  costs ~2 orders of magnitude more upfront and needs accumulated data. Caching
+  costs ≈2 orders of magnitude more upfront and needs accumulated data. Caching
   captures most of the cost reduction (repeat-heavy domain) at zero training cost.
 - **Local-first storage with Supabase backup over server-side plaintext** —
   privacy-by-default; sync resolves later via user-held-key E2EE rather than
@@ -220,7 +229,7 @@ Production-oriented choices baked into the prototype:
 Designed as a merchant-facing module for Busan's city-operated payment platform
 (Donbaek-e-isgood) — serving populations typically excluded from fintech
 products: elderly merchants, dialect speakers, cash-heavy operators. As of
-January 2026, ~145,000 merchants already use Donbaek-e-isgood, so embedding Dandi
+January 2026, ≈145,000 merchants already use Donbaek-e-isgood, so embedding Dandi
 there means near-zero user-acquisition cost and no separate app install.
 
 Operational ownership is left open to whichever entity Busan City selects to
@@ -279,7 +288,7 @@ detection* — across financial domains:
 Sinae Hong.
 
 WorldQuant Brain consultant tier (progressed from zero prior quant experience to
-consultant tier through intensive daily alpha submissions), USCPA candidate (2027).
+consultant tier through intensive daily alpha submissions).
 Recently transitioned into computer science and built Dandi end to end — planning,
 development, security, and field validation — as a production-oriented financial
 AI system focused on real-world data constraints.
